@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # meu-bot
 
 Bot para WhatsApp construído com Node.js usando a biblioteca [Baileys](https://github.com/WhiskeySockets/Baileys), que emula o WhatsApp Web para automatizar mensagens sem depender de API oficial.
@@ -104,3 +105,6 @@ if (texto === 'ajuda') {
 - A pasta `auth/` é criada automaticamente na primeira execução e deve ser mantida para preservar a sessão.
 - O bot utiliza uma versão Release Candidate do Baileys (`v7.0.0-rc.9`), então pode haver mudanças na API em versões futuras.
 - Este projeto não utiliza a API oficial do WhatsApp Business, portanto está sujeito aos Termos de Serviço do WhatsApp.
+=======
+Projeto Odontotech-bot da clínica
+>>>>>>> ec68597605bcd94d5ee70ea5f04658ca706c4658
