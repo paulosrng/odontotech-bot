@@ -1,110 +1,76 @@
-<<<<<<< HEAD
-# meu-bot
+# 🦷 OdontoTech Bot
 
-Bot para WhatsApp construído com Node.js usando a biblioteca [Baileys](https://github.com/WhiskeySockets/Baileys), que emula o WhatsApp Web para automatizar mensagens sem depender de API oficial.
+Bot de WhatsApp para a clínica **OdontoTech**: faz atendimento por menu e **agenda consultas direto no Google Agenda**.
 
----
+Construído com [Baileys](https://github.com/WhiskeySockets/Baileys) (WhatsApp), [googleapis](https://www.npmjs.com/package/googleapis) (Google Calendar) e, opcionalmente, [Groq](https://groq.com) como cérebro de IA.
 
-## Funcionalidades
+## ✨ O que o bot faz
 
-- Conecta ao WhatsApp via QR Code (igual ao WhatsApp Web)
-- Persiste a sessão na pasta `auth/` para não precisar autenticar novamente
-- Reconecta automaticamente em caso de queda de conexão
-- Escuta mensagens recebidas e responde automaticamente
-- Responde com **"Olá! 👋"** quando alguém envia **"oi"**
+- **Menu de atendimento** (responde por número):
+  1. Agendar consulta
+  2. Ver serviços
+  3. Endereço e horário
+  4. Falar com atendente
+- **Fluxo de agendamento completo**: pergunta nome → serviço → dia → horário, consulta os **horários livres na sua agenda** e **cria o evento** no Google Calendar.
+- **Comandos globais**: `menu`, `oi`, `cancelar`.
+- **IA opcional (Groq)**: responde perguntas livres fora do menu. Só liga se você definir a `GROQ_API_KEY`; sem ela, o bot funciona normal só com o menu.
 
----
-
-## Tecnologias
-
-| Tecnologia | Uso |
-|---|---|
-| Node.js | Runtime JavaScript |
-| @whiskeysockets/baileys | Conexão com WhatsApp Web |
-| qrcode-terminal | Exibe o QR Code no terminal |
-| @hapi/boom | Tratamento de erros HTTP |
-
----
-
-## Estrutura do Projeto
-
-```
-meu-bot/
-├── index.js          # Lógica principal do bot
-├── package.json      # Dependências e configurações do projeto
-├── auth/             # Credenciais de sessão do WhatsApp (gerado em runtime)
-└── node_modules/     # Pacotes instalados
-```
-
----
-
-## Como Usar
-
-### 1. Instale as dependências
+## 🚀 Instalação
 
 ```bash
 npm install
+cp .env.example .env   # depois edite o .env
 ```
 
-### 2. Inicie o bot
+## ⚙️ Configurar o Google Calendar (Service Account)
+
+1. Acesse o [Google Cloud Console](https://console.cloud.google.com/) e crie um projeto.
+2. Em **APIs e serviços → Biblioteca**, ative a **Google Calendar API**.
+3. Em **APIs e serviços → Credenciais → Criar credenciais → Conta de serviço**. Crie a conta.
+4. Abra a conta de serviço criada → aba **Chaves → Adicionar chave → Criar nova chave → JSON**. Baixe o arquivo e salve como **`credentials.json`** na raiz do projeto.
+5. Copie o **e-mail** da conta de serviço (algo como `nome@projeto.iam.gserviceaccount.com`).
+6. Abra o [Google Agenda](https://calendar.google.com/) → **Configurações** da agenda que você quer usar → **Compartilhar com pessoas específicas** → adicione o e-mail da conta de serviço com a permissão **"Fazer alterações em eventos"**.
+7. Ainda nas configurações da agenda, copie o **ID da agenda** (seção "Integrar agenda") e cole em `GOOGLE_CALENDAR_ID` no `.env`.
+
+> O `credentials.json` e o `.env` **não vão pro Git** (já estão no `.gitignore`). Nunca suba esses arquivos.
+
+## 🤖 Configurar a IA (Groq) — opcional
+
+1. Crie uma conta grátis na [Groq](https://console.groq.com/keys) e gere uma API key.
+2. Coloque em `GROQ_API_KEY` no `.env`. (O modelo padrão é `llama-3.3-70b-versatile`.)
+
+## ▶️ Rodar
 
 ```bash
-node index.js
+npm start
 ```
 
-### 3. Autentique com o WhatsApp
+Na primeira vez, um **QR Code** aparece no terminal — escaneie com o WhatsApp (Aparelhos conectados → Conectar aparelho). A sessão fica salva na pasta `auth/`, então nas próximas vezes conecta sozinho.
 
-Um QR Code será exibido no terminal. Abra o WhatsApp no celular, vá em **Dispositivos conectados** e escaneie o código.
+Ao iniciar, o terminal mostra o status:
 
-### 4. Teste o bot
-
-Envie **"oi"** para o número do WhatsApp conectado e o bot responderá com **"Olá! 👋"**.
-
----
-
-## Como Funciona
-
-### Conexão
-
-O bot usa a função `makeWASocket` do Baileys para abrir uma conexão WebSocket com os servidores do WhatsApp Web. As credenciais de autenticação são salvas na pasta `auth/` via `useMultiFileAuthState`, permitindo retomar a sessão sem novo login.
-
-### Reconexão Automática
-
-Se a conexão cair por qualquer motivo que não seja logout manual, o bot chama `conectar()` novamente automaticamente.
-
-### Processamento de Mensagens
-
-O bot escuta o evento `messages.upsert` do Baileys. Para cada mensagem recebida:
-
-1. Ignora mensagens enviadas pelo próprio bot
-2. Extrai o texto da mensagem (suporta mensagens normais e texto estendido)
-3. Verifica se o texto é `"oi"` (sem diferenciar maiúsculas/minúsculas)
-4. Envia `"Olá! 👋"` de volta para a mesma conversa
-
----
-
-## Adicionando Novos Comandos
-
-No arquivo [index.js](index.js), localize o bloco de processamento de mensagens e adicione novos `if` para novos gatilhos:
-
-```js
-if (texto === 'oi') {
-    await sock.sendMessage(from, { text: 'Olá! 👋' });
-}
-
-// Exemplo de novo comando:
-if (texto === 'ajuda') {
-    await sock.sendMessage(from, { text: 'Comandos disponíveis: oi, ajuda' });
-}
+```
+Google Calendar: configurado ✅
+IA (Groq): ativada ✅
 ```
 
----
+## 🗂️ Estrutura
 
-## Observacoes
+```
+index.js                 # conexão com o WhatsApp (Baileys) + roteamento de mensagens
+src/clinic.js            # dados da clínica e config (horário, fuso, duração)
+src/googleCalendar.js    # integração com a Google Calendar API
+src/ai.js                # integração opcional com a Groq
+src/conversation.js      # menu + máquina de estados do agendamento
+.env.example             # modelo das variáveis de ambiente
+```
 
-- A pasta `auth/` é criada automaticamente na primeira execução e deve ser mantida para preservar a sessão.
-- O bot utiliza uma versão Release Candidate do Baileys (`v7.0.0-rc.9`), então pode haver mudanças na API em versões futuras.
-- Este projeto não utiliza a API oficial do WhatsApp Business, portanto está sujeito aos Termos de Serviço do WhatsApp.
-=======
-Projeto Odontotech-bot da clínica
->>>>>>> ec68597605bcd94d5ee70ea5f04658ca706c4658
+## ✏️ Personalizar
+
+- **Dados da clínica** (nome, endereço, serviços): edite [`src/clinic.js`](src/clinic.js).
+- **Horário de funcionamento / duração da consulta**: variáveis no `.env` (`CLINIC_OPEN_HOUR`, `CLINIC_CLOSE_HOUR`, `APPOINTMENT_DURATION_MIN`).
+
+## ⚠️ Observações
+
+- Usa uma versão Release Candidate do Baileys (`v7.x-rc`); a API pode mudar em versões futuras.
+- Não usa a API oficial do WhatsApp Business — está sujeito aos Termos do WhatsApp. Use um número de teste.
