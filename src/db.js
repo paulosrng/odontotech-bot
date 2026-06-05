@@ -1,57 +1,97 @@
-// Camada de banco de dados (Supabase / Postgres).
+// Camada de banco de dados (SQLite, via better-sqlite3).
 // Guarda pacientes, agendamentos e o histórico de conversa (memória da IA).
 //
-// Se SUPABASE_URL / SUPABASE_KEY não estiverem definidos, o bot continua
-// funcionando — só fica sem memória/persistência (modo degradado).
+// Não precisa de servidor, conta nem credenciais: os dados ficam num arquivo
+// local (odontotech.db) e as tabelas são criadas automaticamente na 1ª execução.
 
-require('dotenv').config()
-const { createClient } = require('@supabase/supabase-js')
+const path = require('path')
+const Database = require('better-sqlite3')
 
-const URL = process.env.SUPABASE_URL
-const KEY = process.env.SUPABASE_KEY
+const DB_PATH = process.env.SQLITE_PATH || path.join(__dirname, '..', 'odontotech.db')
 
-let supabase = null
-if (URL && KEY) supabase = createClient(URL, KEY, { auth: { persistSession: false } })
+const db = new Database(DB_PATH)
+db.pragma('journal_mode = WAL')
 
+// Cria as tabelas se ainda não existirem.
+db.exec(`
+  CREATE TABLE IF NOT EXISTS patients (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    phone       TEXT UNIQUE NOT NULL,
+    name        TEXT,
+    created_at  TEXT DEFAULT CURRENT_TIMESTAMP
+  );
+
+  CREATE TABLE IF NOT EXISTS appointments (
+    id                INTEGER PRIMARY KEY AUTOINCREMENT,
+    phone             TEXT NOT NULL,
+    patient_name      TEXT,
+    service           TEXT,
+    start_time        TEXT NOT NULL,
+    end_time          TEXT,
+    calendar_event_id TEXT,
+    status            TEXT DEFAULT 'confirmado',
+    created_at        TEXT DEFAULT CURRENT_TIMESTAMP
+  );
+
+  CREATE TABLE IF NOT EXISTS messages (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    phone       TEXT NOT NULL,
+    role        TEXT NOT NULL,
+    content     TEXT,
+    created_at  TEXT DEFAULT CURRENT_TIMESTAMP
+  );
+
+  CREATE INDEX IF NOT EXISTS idx_messages_phone ON messages (phone, created_at);
+  CREATE INDEX IF NOT EXISTS idx_appointments_phone ON appointments (phone, created_at);
+`)
+
+// Com SQLite o banco está sempre pronto (arquivo local).
 function isConfigured() {
-  return Boolean(supabase)
+  return true
 }
 
 // Últimas mensagens de um contato, em ordem cronológica (p/ contexto da IA).
 async function getRecentMessages(phone, limit = 10) {
-  if (!supabase) return []
-  const { data, error } = await supabase
-    .from('messages')
-    .select('role, content')
-    .eq('phone', phone)
-    .order('created_at', { ascending: false })
-    .limit(limit)
-  if (error) {
-    console.error('Supabase getRecentMessages:', error.message)
+  try {
+    const rows = db
+      .prepare('SELECT role, content FROM messages WHERE phone = ? ORDER BY id DESC LIMIT ?')
+      .all(phone, limit)
+    return rows.reverse()
+  } catch (err) {
+    console.error('SQLite getRecentMessages:', err.message)
     return []
   }
-  return (data || []).reverse()
 }
 
 async function saveMessage(phone, role, content) {
-  if (!supabase) return
-  const { error } = await supabase.from('messages').insert({ phone, role, content })
-  if (error) console.error('Supabase saveMessage:', error.message)
+  try {
+    db.prepare('INSERT INTO messages (phone, role, content) VALUES (?, ?, ?)').run(phone, role, content)
+  } catch (err) {
+    console.error('SQLite saveMessage:', err.message)
+  }
 }
 
 // Cria/atualiza o paciente daquele número.
 async function upsertPatient(phone, name) {
-  if (!supabase) return
-  const { error } = await supabase
-    .from('patients')
-    .upsert({ phone, name }, { onConflict: 'phone' })
-  if (error) console.error('Supabase upsertPatient:', error.message)
+  try {
+    db.prepare(
+      `INSERT INTO patients (phone, name) VALUES (?, ?)
+       ON CONFLICT(phone) DO UPDATE SET name = excluded.name`
+    ).run(phone, name)
+  } catch (err) {
+    console.error('SQLite upsertPatient:', err.message)
+  }
 }
 
 async function saveAppointment(appt) {
-  if (!supabase) return
-  const { error } = await supabase.from('appointments').insert(appt)
-  if (error) console.error('Supabase saveAppointment:', error.message)
+  try {
+    db.prepare(
+      `INSERT INTO appointments (phone, patient_name, service, start_time, end_time, calendar_event_id, status)
+       VALUES (@phone, @patient_name, @service, @start_time, @end_time, @calendar_event_id, @status)`
+    ).run(appt)
+  } catch (err) {
+    console.error('SQLite saveAppointment:', err.message)
+  }
 }
 
 module.exports = {

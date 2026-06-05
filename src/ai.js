@@ -1,6 +1,6 @@
 // Cérebro do bot: conversa 100% por IA (Groq) com persona humanizada.
 // A IA conversa naturalmente e usa "function calling" para executar ações
-// reais: consultar horários e agendar consultas (Google Calendar + Supabase).
+// reais: consultar horários e agendar consultas (Google Calendar + SQLite).
 
 const Groq = require('groq-sdk')
 const { clinic, config } = require('./clinic')

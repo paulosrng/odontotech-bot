@@ -15,7 +15,7 @@ async function conectar() {
   console.log(`Usando WhatsApp Web v${version.join('.')}`)
   console.log(`Google Calendar: ${calendar.isConfigured() ? 'configurado ✅' : 'NÃO configurado ⚠️ (agendamento desativado)'}`)
   console.log(`IA (Groq): ${ai.isEnabled() ? 'ativada ✅' : 'DESATIVADA ⚠️ (sem GROQ_API_KEY o bot não responde)'}`)
-  console.log(`Banco (Supabase): ${db.isConfigured() ? 'conectado ✅' : 'não configurado (sem memória/histórico)'}`)
+  console.log(`Banco (SQLite): ${db.isConfigured() ? 'pronto ✅' : 'erro ⚠️'}`)
 
   const sock = makeWASocket({ version, auth: state })
 
@@ -57,7 +57,7 @@ async function conectar() {
     } catch (err) {
       console.error('Erro ao processar mensagem:', err)
       await sock.sendMessage(remetente, {
-        text: '😣 Ops, tive um problema aqui. Digite *menu* para tentar de novo.',
+        text: '😣 Ops, tive um probleminha aqui. Pode mandar de novo, por favor?',
       })
     }
   })
