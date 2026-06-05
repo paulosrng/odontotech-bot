@@ -5,6 +5,7 @@ require('dotenv').config()
 
 const clinic = {
   nome: 'OdontoTech',
+  atendente: 'Sofia', // nome da recepcionista virtual (persona da IA)
   endereco: 'Rua Exemplo, 123 - Centro, Sua Cidade/UF',
   telefone: '(00) 0000-0000',
   horarioTexto: 'Segunda a sexta, das 9h às 18h',

@@ -131,6 +131,9 @@ async function createAppointment({ date, hour, min, paciente, servico, telefone 
 
   return {
     link: data.htmlLink,
+    eventId: data.id,
+    startISO: startStr,
+    endISO: endStr,
     label: `${formatDateBR(date)} às ${pad(hour)}:${pad(min)}`,
   }
 }

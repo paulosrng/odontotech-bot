@@ -11,6 +11,7 @@
   "license": "ISC",
   "dependencies": {
     "@hapi/boom": "^10.0.1",
+    "@supabase/supabase-js": "^2.107.0",
     "@whiskeysockets/baileys": "^7.0.0-rc.9",
     "dotenv": "^17.4.2",
     "googleapis": "^173.0.0",

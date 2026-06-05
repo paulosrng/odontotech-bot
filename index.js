@@ -7,13 +7,15 @@ const qrcode = require('qrcode-terminal')
 const { handleMessage } = require('./src/conversation')
 const calendar = require('./src/googleCalendar')
 const ai = require('./src/ai')
+const db = require('./src/db')
 
 async function conectar() {
   const { state, saveCreds } = await useMultiFileAuthState('auth')
   const { version } = await fetchLatestWaWebVersion()
   console.log(`Usando WhatsApp Web v${version.join('.')}`)
   console.log(`Google Calendar: ${calendar.isConfigured() ? 'configurado ✅' : 'NÃO configurado ⚠️ (agendamento desativado)'}`)
-  console.log(`IA (Groq): ${ai.isEnabled() ? 'ativada ✅' : 'desativada (só menu)'}`)
+  console.log(`IA (Groq): ${ai.isEnabled() ? 'ativada ✅' : 'DESATIVADA ⚠️ (sem GROQ_API_KEY o bot não responde)'}`)
+  console.log(`Banco (Supabase): ${db.isConfigured() ? 'conectado ✅' : 'não configurado (sem memória/histórico)'}`)
 
   const sock = makeWASocket({ version, auth: state })
 
