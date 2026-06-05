@@ -79,6 +79,34 @@ odontotech.db            # banco SQLite (criado automaticamente; fora do Git)
 - **Tom e regras da IA**: o "system prompt" fica em [`src/ai.js`](src/ai.js).
 - **Horário de funcionamento / duração da consulta**: variáveis no `.env` (`CLINIC_OPEN_HOUR`, `CLINIC_CLOSE_HOUR`, `APPOINTMENT_DURATION_MIN`).
 
+## 🚑 Resolução de problemas
+
+### O bot conecta mas não responde às mensagens
+
+Quase sempre é um destes dois motivos:
+
+**1. Dois bots rodando ao mesmo tempo** ⚠️
+Se você rodar `npm start` em mais de um terminal (ou em duas máquinas) usando a mesma
+conta do WhatsApp, as sessões **brigam pela conexão** e nenhuma responde.
+- **Regra:** só **um** `npm start` por vez.
+- Se acontecer, pare todos (`Ctrl + C` em cada terminal) e deixe **só um** rodando.
+
+**2. Sessão antiga/corrompida** 🔄
+Se a sessão salva (pasta `auth/`) ficou parada por muito tempo, o bot conecta mas
+para de receber mensagens novas. A solução é **reparear do zero**:
+
+1. Pare o bot: `Ctrl + C`
+2. Apague a sessão antiga:
+   ```bash
+   rm -rf auth
+   ```
+   (no Windows: apague a pasta `auth` manualmente)
+3. Suba de novo: `npm start`
+4. Escaneie o **QR Code novo** com o WhatsApp (Aparelhos conectados → Conectar aparelho)
+
+> Apagar a pasta `auth/` só remove a "credencial de login" do WhatsApp — é seguro.
+> Os dados do bot (pacientes, agendamentos) ficam no `odontotech.db` e **não são afetados**.
+
 ## ⚠️ Observações
 
 - Usa uma versão Release Candidate do Baileys (`v7.x-rc`); a API pode mudar em versões futuras.
