@@ -1,0 +1,11 @@
+node_modules/
+auth/
+auth_bkp_antiga/
+bot.log
+.env
+credentials.json
+*.log
+.DS_Store
+odontotech.db
+odontotech.db-shm
+odontotech.db-wal
