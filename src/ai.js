@@ -1,20 +1,47 @@
-// Cérebro do bot: conversa 100% por IA (Groq) com persona humanizada.
+// Cérebro do bot: conversa 100% por IA com persona humanizada.
 // A IA conversa naturalmente e usa "function calling" para executar ações
 // reais: consultar horários e agendar consultas (Google Calendar + SQLite).
+//
+// Funciona com 2 provedores (escolhidos por LLM_PROVIDER no .env):
+//   - "local": LLM rodando na máquina via Ollama (padrão, offline)
+//   - "groq":  API da Groq (nuvem)
+// Ambos usam a mesma API compatível com OpenAI, então o código é o mesmo.
 
-const Groq = require('groq-sdk')
+const OpenAI = require('openai')
 const { clinic, config } = require('./clinic')
 const calendar = require('./googleCalendar')
 const db = require('./db')
 
-const API_KEY = process.env.GROQ_API_KEY
-const MODEL = process.env.GROQ_MODEL || 'llama-3.3-70b-versatile'
+const PROVIDER = (process.env.LLM_PROVIDER || 'local').toLowerCase()
 
-let groq = null
-if (API_KEY) groq = new Groq({ apiKey: API_KEY })
+let client = null
+let MODEL = null
+
+if (PROVIDER === 'groq') {
+  // Nuvem (Groq) — usa a API compatível com OpenAI.
+  if (process.env.GROQ_API_KEY) {
+    client = new OpenAI({
+      apiKey: process.env.GROQ_API_KEY,
+      baseURL: 'https://api.groq.com/openai/v1',
+    })
+    MODEL = process.env.GROQ_MODEL || 'llama-3.3-70b-versatile'
+  }
+} else {
+  // Local (Ollama) — endpoint local, não precisa de chave de verdade.
+  client = new OpenAI({
+    apiKey: 'ollama', // ignorado pelo Ollama, mas o cliente exige algo
+    baseURL: process.env.OLLAMA_BASE_URL || 'http://localhost:11434/v1',
+  })
+  MODEL = process.env.OLLAMA_MODEL || 'gpt-oss:20b'
+}
 
 function isEnabled() {
-  return Boolean(groq)
+  return Boolean(client)
+}
+
+// Para o log de inicialização mostrar o que está em uso.
+function info() {
+  return { provider: PROVIDER, model: MODEL }
 }
 
 const WEEKDAYS = ['domingo', 'segunda-feira', 'terça-feira', 'quarta-feira', 'quinta-feira', 'sexta-feira', 'sábado']
@@ -160,7 +187,7 @@ function systemPrompt() {
 
 // Conversa principal: recebe a mensagem do paciente e devolve a resposta da IA.
 async function conversar(phone, texto) {
-  if (!groq) return null
+  if (!client) return null
 
   const history = await db.getRecentMessages(phone, 10)
   const messages = [
@@ -174,7 +201,7 @@ async function conversar(phone, texto) {
   for (let i = 0; i < 5; i++) {
     let res
     try {
-      res = await groq.chat.completions.create({
+      res = await client.chat.completions.create({
         model: MODEL,
         temperature: 0.6,
         max_tokens: 500,
@@ -183,7 +210,7 @@ async function conversar(phone, texto) {
         tool_choice: 'auto',
       })
     } catch (err) {
-      console.error('Erro na Groq:', err.message)
+      console.error(`Erro na LLM (${PROVIDER}/${MODEL}):`, err.message)
       return null
     }
 
@@ -248,4 +275,4 @@ async function conversar(phone, texto) {
   return respostaFinal
 }
 
-module.exports = { isEnabled, conversar }
+module.exports = { isEnabled, conversar, info }

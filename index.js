@@ -14,7 +14,7 @@ async function conectar() {
   const { version } = await fetchLatestWaWebVersion()
   console.log(`Usando WhatsApp Web v${version.join('.')}`)
   console.log(`Google Calendar: ${calendar.isConfigured() ? 'configurado ✅' : 'NÃO configurado ⚠️ (agendamento desativado)'}`)
-  console.log(`IA (Groq): ${ai.isEnabled() ? 'ativada ✅' : 'DESATIVADA ⚠️ (sem GROQ_API_KEY o bot não responde)'}`)
+  console.log(`IA: ${ai.isEnabled() ? `${ai.info().provider} (${ai.info().model}) ✅` : 'DESATIVADA ⚠️'}`)
   console.log(`Banco (SQLite): ${db.isConfigured() ? 'pronto ✅' : 'erro ⚠️'}`)
 
   const sock = makeWASocket({ version, auth: state })

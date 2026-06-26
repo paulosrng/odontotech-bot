@@ -2,7 +2,7 @@
 
 Atendente virtual de WhatsApp para a clínica **OdontoTech**: conversa de forma **100% natural por IA** (sem menus) e **agenda consultas direto no Google Agenda**, guardando tudo num banco de dados.
 
-Construído com [Baileys](https://github.com/WhiskeySockets/Baileys) (WhatsApp), [Groq](https://groq.com) (IA com function calling), [googleapis](https://www.npmjs.com/package/googleapis) (Google Calendar) e [SQLite](https://github.com/WiseLibs/better-sqlite3) (banco de dados local).
+Construído com [Baileys](https://github.com/WhiskeySockets/Baileys) (WhatsApp), [Ollama](https://ollama.com) (LLM local com function calling — ou [Groq](https://groq.com) na nuvem), [googleapis](https://www.npmjs.com/package/googleapis) (Google Calendar) e [SQLite](https://github.com/WiseLibs/better-sqlite3) (banco de dados local).
 
 ## ✨ O que o bot faz
 
@@ -31,12 +31,27 @@ cp .env.example .env   # depois edite o .env
 
 > O `credentials.json` e o `.env` **não vão pro Git** (já estão no `.gitignore`). Nunca suba esses arquivos.
 
-## 🤖 Configurar a IA (Groq) — obrigatório
+## 🤖 Configurar a IA (cérebro do bot) — obrigatório
 
-> A IA é o cérebro do bot. Sem ela, o atendimento não funciona.
+A IA é o cérebro do bot. Você escolhe entre rodar **local** (Ollama, offline) ou na **nuvem** (Groq),
+pela variável `LLM_PROVIDER` no `.env`.
+
+### Opção A — Local com Ollama (padrão, offline)
+
+> Recomendado: roda na sua máquina, sem internet nem custo. Precisa de um Mac/PC com RAM suficiente
+> (o `gpt-oss:20b` usa ~16GB; para máquinas mais modestas use um modelo menor como `qwen2.5:7b`).
+
+1. Instale o [Ollama](https://ollama.com) (no Mac: `brew install ollama`).
+2. Ligue o servidor: `ollama serve` (deixe rodando) — ou `brew services start ollama`.
+3. Baixe o modelo: `ollama pull gpt-oss:20b`
+4. No `.env`: `LLM_PROVIDER=local` e `OLLAMA_MODEL=gpt-oss:20b`.
+
+### Opção B — Nuvem com Groq
+
+> Não pesa na sua máquina, mas depende de internet e de uma API key.
 
 1. Crie uma conta grátis na [Groq](https://console.groq.com/keys) e gere uma API key.
-2. Coloque em `GROQ_API_KEY` no `.env`. (O modelo padrão é `llama-3.3-70b-versatile`.)
+2. No `.env`: `LLM_PROVIDER=groq`, `GROQ_API_KEY=...` e `GROQ_MODEL=llama-3.3-70b-versatile`.
 
 ## 🗄️ Banco de dados (SQLite) — nada a configurar
 
@@ -56,7 +71,7 @@ Ao iniciar, o terminal mostra o status:
 
 ```
 Google Calendar: configurado ✅
-IA (Groq): ativada ✅
+IA: local (gpt-oss:20b) ✅
 Banco (SQLite): pronto ✅
 ```
 
@@ -65,7 +80,7 @@ Banco (SQLite): pronto ✅
 ```
 index.js                 # conexão com o WhatsApp (Baileys) + roteamento de mensagens
 src/clinic.js            # dados da clínica, persona e config (horário, fuso, duração)
-src/ai.js                # cérebro: IA (Groq) com function calling + persona humanizada
+src/ai.js                # cérebro: IA (Ollama local ou Groq) com function calling + persona
 src/googleCalendar.js    # integração com a Google Calendar API
 src/db.js                # camada de banco de dados (SQLite)
 src/conversation.js      # ponto de entrada das mensagens (encaminha pra IA)
@@ -106,6 +121,19 @@ para de receber mensagens novas. A solução é **reparear do zero**:
 
 > Apagar a pasta `auth/` só remove a "credencial de login" do WhatsApp — é seguro.
 > Os dados do bot (pacientes, agendamentos) ficam no `odontotech.db` e **não são afetados**.
+
+### A IA não responde / dá erro de conexão (modo local)
+
+Se estiver usando `LLM_PROVIDER=local`, o **Ollama precisa estar rodando** e o modelo baixado:
+
+```bash
+ollama serve              # liga o servidor (ou: brew services start ollama)
+ollama pull gpt-oss:20b   # baixa o modelo (só na primeira vez)
+ollama list               # confere os modelos baixados
+```
+
+> Quem for rodar o bot em **modo local** precisa ter o Ollama instalado e o modelo baixado
+> na própria máquina. Quem não quiser (ou tiver máquina mais fraca) pode usar `LLM_PROVIDER=groq`.
 
 ## ⚠️ Observações
 
