@@ -139,3 +139,42 @@ ollama list               # confere os modelos baixados
 
 - Usa uma versão Release Candidate do Baileys (`v7.x-rc`); a API pode mudar em versões futuras.
 - Não usa a API oficial do WhatsApp Business — está sujeito aos Termos do WhatsApp. Use um número de teste.
+
+
+
+<img width="1868" height="1070" alt="Screenshot 2026-06-07 at 19-21-06 Odontotech — Sistema de Gestão Odontológica" src="https://github.com/user-attachments/assets/a4cfc02f-cf19-490d-a996-5d0238223e26" />
+
+<img width="1868" height="1070" alt="Screenshot 2026-06-07 at 19-21-13 Odontotech — Sistema de Gestão Odontológica" src="https://github.com/user-attachments/assets/57285b93-90da-4590-91e9-9f1e7f3e9cc5" />
+
+<img width="1868" height="1070" alt="Screenshot 2026-06-07 at 19-21-53 Odontotech — Sistema de Gestão Odontológica" src="https://github.com/user-attachments/assets/3312f5b9-4ab5-4da0-bbc7-39bf9508af3b" />
+
+<img width="1868" height="1070" alt="Screenshot 2026-06-07 at 19-22-17 Odontotech — Sistema de Gestão Odontológica" src="https://github.com/user-attachments/assets/c40f2502-2c82-44cc-be6a-1941d57c2d04" />
+
+<img width="1868" height="1070" alt="Screenshot 2026-06-07 at 19-22-34 Odontotech — Sistema de Gestão Odontológica" src="https://github.com/user-attachments/assets/a6679d76-148d-4b81-9b70-d1f34ead37d9" />
+
+<img width="1868" height="1070" alt="Screenshot 2026-06-07 at 19-22-51 Odontotech — Sistema de Gestão Odontológica" src="https://github.com/user-attachments/assets/57597c8f-3a97-4976-a95d-42c6e78ffe20" />
+
+<img width="1868" height="1070" alt="Screenshot 2026-06-07 at 19-23-04 Odontotech — Sistema de Gestão Odontológica" src="https://github.com/user-attachments/assets/4838179d-6351-4bb9-95f2-ffe78723c8e2" />
+
+<img width="1868" height="1070" alt="Screenshot 2026-06-07 at 19-23-24 Odontotech — Sistema de Gestão Odontológica" src="https://github.com/user-attachments/assets/8d6939dc-1c50-4b28-b6dc-443c74d4f5f9" />
+
+<img width="1868" height="1070" alt="Screenshot 2026-06-07 at 19-23-35 Odontotech — Sistema de Gestão Odontológica" src="https://github.com/user-attachments/assets/2c8641f4-8262-4668-8c02-6b0044d54ff4" />
+
+<img width="1868" height="1070" alt="Screenshot 2026-06-07 at 19-24-04 Odontotech — Sistema de Gestão Odontológica" src="https://github.com/user-attachments/assets/19b8e8e1-0647-4d6b-88a6-3e2a87d24173" />
+
+<img width="1868" height="1070" alt="Screenshot 2026-06-07 at 19-24-31 Odontotech — Sistema de Gestão Odontológica" src="https://github.com/user-attachments/assets/88f4af4e-27a8-41e2-b7c9-12c762ee4912" />
+
+<img width="1868" height="1070" alt="Screenshot 2026-06-07 at 19-24-52 Odontotech — Sistema de Gestão Odontológica" src="https://github.com/user-attachments/assets/418cbf6a-9e1b-42af-a4e2-5df0b67ccb81" />
+
+<img width="1868" height="1070" alt="Screenshot 2026-06-07 at 19-25-07 Odontotech — Sistema de Gestão Odontológica" src="https://github.com/user-attachments/assets/2788dfaf-a402-4938-b2d5-ca3e88647a7f" />
+
+<img width="1868" height="1070" alt="Screenshot 2026-06-07 at 19-25-20 Odontotech — Sistema de Gestão Odontológica" src="https://github.com/user-attachments/assets/756a257d-aeb1-4253-99b3-9641855c11fd" />
+
+<img width="1868" height="1070" alt="Screenshot 2026-06-07 at 19-25-31 Odontotech — Sistema de Gestão Odontológica" src="https://github.com/user-attachments/assets/792ee217-04d4-4277-9208-f61acff5ae3b" />
+
+<img width="1868" height="1070" alt="Screenshot 2026-06-07 at 19-25-42 Odontotech — Sistema de Gestão Odontológica" src="https://github.com/user-attachments/assets/52d4af96-8e67-4fac-b702-0c4143853181" />
+
+
+
+
+
