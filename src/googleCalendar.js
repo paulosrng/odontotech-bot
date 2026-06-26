@@ -138,10 +138,18 @@ async function createAppointment({ date, hour, min, paciente, servico, telefone 
   }
 }
 
+// Apaga um evento da agenda pelo ID (usado no cancelamento).
+async function deleteEvent(eventId) {
+  if (!eventId) return
+  const cal = getClient()
+  await cal.events.delete({ calendarId: CALENDAR_ID, eventId })
+}
+
 module.exports = {
   isConfigured,
   getAvailableSlots,
   createAppointment,
+  deleteEvent,
   todayInTz,
   addDays,
   formatDateBR,

@@ -94,10 +94,39 @@ async function saveAppointment(appt) {
   }
 }
 
+// Consultas confirmadas e futuras de um número (p/ consultar/cancelar).
+async function getUpcomingAppointments(phone) {
+  try {
+    const rows = db
+      .prepare(
+        `SELECT id, patient_name, service, start_time, calendar_event_id
+         FROM appointments WHERE phone = ? AND status = 'confirmado'
+         ORDER BY start_time ASC`
+      )
+      .all(phone)
+    const agora = Date.now()
+    return rows.filter((r) => new Date(r.start_time).getTime() >= agora)
+  } catch (err) {
+    console.error('SQLite getUpcomingAppointments:', err.message)
+    return []
+  }
+}
+
+// Marca uma consulta como cancelada.
+async function cancelAppointment(id) {
+  try {
+    db.prepare("UPDATE appointments SET status = 'cancelado' WHERE id = ?").run(id)
+  } catch (err) {
+    console.error('SQLite cancelAppointment:', err.message)
+  }
+}
+
 module.exports = {
   isConfigured,
   getRecentMessages,
   saveMessage,
   upsertPatient,
   saveAppointment,
+  getUpcomingAppointments,
+  cancelAppointment,
 }

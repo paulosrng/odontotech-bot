@@ -82,6 +82,29 @@ const tools = [
       },
     },
   },
+  {
+    type: 'function',
+    function: {
+      name: 'consultar_agendamentos',
+      description:
+        'Lista as consultas futuras já marcadas por este paciente. Use quando ele perguntar sobre suas consultas ou antes de cancelar.',
+      parameters: { type: 'object', properties: {} },
+    },
+  },
+  {
+    type: 'function',
+    function: {
+      name: 'cancelar_consulta',
+      description:
+        'Cancela DE VERDADE uma consulta do paciente (remove da agenda e do sistema). Nunca diga que cancelou sem chamar esta função. Se o paciente tiver mais de uma consulta, peça a data antes.',
+      parameters: {
+        type: 'object',
+        properties: {
+          data: { type: 'string', description: 'Data da consulta a cancelar (AAAA-MM-DD). Opcional se o paciente só tem uma.' },
+        },
+      },
+    },
+  },
 ]
 
 function parseISODate(s) {
@@ -147,6 +170,39 @@ async function executarFerramenta(nome, args, phone) {
     return { sucesso: true, confirmacao: result.label }
   }
 
+  if (nome === 'consultar_agendamentos') {
+    const ags = await db.getUpcomingAppointments(phone)
+    if (!ags.length) return { agendamentos: [], aviso: 'Nenhuma consulta futura marcada neste número.' }
+    return {
+      agendamentos: ags.map((a) => ({ data: a.start_time, servico: a.service, paciente: a.patient_name })),
+    }
+  }
+
+  if (nome === 'cancelar_consulta') {
+    const ags = await db.getUpcomingAppointments(phone)
+    if (!ags.length) return { erro: 'Não há nenhuma consulta futura marcada neste número.' }
+
+    let alvo = ags
+    if (args.data) alvo = ags.filter((a) => a.start_time.startsWith(args.data))
+    if (args.data && !alvo.length) return { erro: 'Não encontrei consulta marcada nessa data.' }
+    if (alvo.length > 1) {
+      return {
+        precisa_escolher: true,
+        agendamentos: alvo.map((a) => ({ data: a.start_time, servico: a.service })),
+        aviso: 'Há mais de uma consulta. Peça ao paciente a data específica.',
+      }
+    }
+
+    const a = alvo[0]
+    try {
+      await calendar.deleteEvent(a.calendar_event_id)
+    } catch (err) {
+      console.error('Erro ao apagar evento da agenda:', err.message)
+    }
+    await db.cancelAppointment(a.id)
+    return { sucesso: true, cancelada: { data: a.start_time, servico: a.service } }
+  }
+
   return { erro: 'Ferramenta desconhecida.' }
 }
 
@@ -181,6 +237,11 @@ function systemPrompt() {
     `3. Converta o que o paciente falar ("amanhã", "sexta", "dia 10") para o formato AAAA-MM-DD usando a data de HOJE.\n` +
     `4. SEMPRE use a ferramenta verificar_horarios para checar os horários reais antes de oferecer ou confirmar. Nunca invente horários.\n` +
     `5. Só use agendar_consulta depois que o paciente confirmar o horário. Depois de agendar, confirme de forma calorosa.\n\n` +
+    `## Consultar e cancelar\n` +
+    `- Se o paciente perguntar quais consultas tem marcadas, use consultar_agendamentos.\n` +
+    `- Para CANCELAR, use SEMPRE a ferramenta cancelar_consulta. ` +
+    `NUNCA diga que cancelou se você não chamou essa ferramenta e ela retornou sucesso. ` +
+    `Se ela retornar que há mais de uma consulta, pergunte ao paciente a data antes de cancelar.\n\n` +
     `Responda sempre em português do Brasil.`
   )
 }
